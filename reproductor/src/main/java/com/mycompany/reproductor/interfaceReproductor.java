@@ -16,7 +16,7 @@ import javax.swing.Timer;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 import javazoom.jl.player.advanced.PlaybackListener;
 import javazoom.jl.player.advanced.PlaybackEvent;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import javax.swing.ImageIcon;
 
 /**
@@ -33,17 +33,17 @@ public class interfaceReproductor extends javax.swing.JFrame {
     
     private int indexActual = 0;
     private String[] canciones = {
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\music\\“Golden” Official Lyric Video _ KPop Demon Hunters _ Sony Animation [yebNIHKAC4A].mp3",
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\music\\_How It's Done_ Official Lyric Video _ KPop Demon Hunters _ Sony Animation [QGsevnbItdU].mp3",
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\music\\Takedown Official Lyric Video feat. Jeongyeon, Jihyo and Chaeyoung from TWICE  KPop Demon Hunters.mp3",
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\music\\Your Idol  Official Song Clip  KPop Demon Hunters  Sony Animation.mp3"
+        "/music/Golden.mp3",
+        "/music/HowItsDone.mp3",
+        "/music/Takedown.mp3",
+        "/music/YourIdol.mp3"
     };
     
     private String[] caratulas = {
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\com\\mycompany\\reproductor\\imagenes\\Golden.jpg",
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\com\\mycompany\\reproductor\\imagenes\\itsdone.png",
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\com\\mycompany\\reproductor\\imagenes\\takedown.jpg",
-        "C:\\Users\\neogt\\Documents\\NetBeansProjects\\reproductor\\src\\main\\java\\com\\mycompany\\reproductor\\imagenes\\youridol.jpg"
+        "/imagenes/Golden.jpg",
+        "/imagenes/itsdone.png",
+        "/imagenes/takedown.jpg",
+        "/imagenes/youridol.jpg"
 };
 
     /**
@@ -327,8 +327,10 @@ public static class ReproductorDemo {
             detener();
 
             rutaActual = ruta;
-            FileInputStream fis = new FileInputStream(ruta);
-            player = new AdvancedPlayer(fis);
+            //FileInputStream fis = new FileInputStream(ruta);
+            InputStream is = getClass().getResourceAsStream(rutaActual);
+
+            player = new AdvancedPlayer(is);
 
             hilo = new Thread(() -> {
                 try {
@@ -380,8 +382,10 @@ public static class ReproductorDemo {
             player.close();
         }
         frameActual = frame; // actualiza el frame actual
-        FileInputStream fis = new FileInputStream(rutaActual);
-        player = new AdvancedPlayer(fis);
+        //FileInputStream fis = new FileInputStream(rutaActual);
+        InputStream is = getClass().getResourceAsStream(rutaActual);
+
+        player = new AdvancedPlayer(is);
         
         hilo = new Thread(() -> {
             try {
@@ -398,7 +402,8 @@ public static class ReproductorDemo {
     
 }
 private void mostrarCaratula(String rutaImagen) {
-    ImageIcon icon = new ImageIcon(rutaImagen);
+    //ImageIcon icon = new ImageIcon(rutaImagen);
+    ImageIcon icon = new ImageIcon(getClass().getResource(rutaImagen));
     Image img = icon.getImage().getScaledInstance(
         jLabelcaratula.getWidth(),
         jLabelcaratula.getHeight(),
