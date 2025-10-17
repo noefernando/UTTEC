@@ -18,6 +18,24 @@ import javazoom.jl.player.advanced.PlaybackListener;
 import javazoom.jl.player.advanced.PlaybackEvent;
 import java.io.InputStream;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import com.google.gson.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 /**
  *
@@ -29,26 +47,19 @@ public class interfaceReproductor extends javax.swing.JFrame {
     private FondoAnimado fondo = new FondoAnimado();
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(interfaceReproductor.class.getName());
     private int totalFrames = 100000; // valor estimado, ajusta según tus MP3
+    private ReproductorOnline reproductorOnline = new ReproductorOnline();
 
     
     private int indexActual = 0;
-    private String[] canciones = {
-        "/music/Golden.mp3",
-        "/music/HowItsDone.mp3",
-        "/music/Takedown.mp3",
-        "/music/YourIdol.mp3"
-    };
+    private String[] canciones = {};
     
-    private String[] caratulas = {
-        "/imagenes/Golden.jpg",
-        "/imagenes/itsdone.png",
-        "/imagenes/takedown.jpg",
-        "/imagenes/youridol.jpg"
-};
+    private String[] caratulas = {};
 
+    
     /**
      * Creates new form interfaceReproductor
      */
+    
     public interfaceReproductor() {
         initComponents();        // primero inicializa jPanel1 y botones
 
@@ -77,6 +88,10 @@ public class interfaceReproductor extends javax.swing.JFrame {
         jButton5 = new javax.swing.JButton();
         jLabelcaratula = new javax.swing.JLabel();
         slidertiempo = new javax.swing.JSlider();
+        boxIdioma = new javax.swing.JComboBox<>();
+        jButton6 = new javax.swing.JButton();
+        jButtonBuscar = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -129,53 +144,98 @@ public class interfaceReproductor extends javax.swing.JFrame {
             }
         });
 
+        boxIdioma.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Español", "Ingles", "Uia" }));
+        boxIdioma.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boxIdiomaActionPerformed(evt);
+            }
+        });
+
+        jButton6.setText("Salir");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        jButtonBuscar.setText("Buscar Online");
+        jButtonBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBuscarActionPerformed(evt);
+            }
+        });
+
+        jButton7.setText("PlayOnline");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 135, Short.MAX_VALUE)
-                .addComponent(jLabelcaratula, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(128, 128, 128)
-                .addComponent(jButton4)
-                .addGap(26, 26, 26))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(274, 274, 274)
-                .addComponent(jButton5)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(slidertiempo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(46, 46, 46)
-                        .addComponent(jButton2)))
-                .addGap(220, 220, 220))
+                        .addGap(78, 78, 78)
+                        .addComponent(jLabelcaratula, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(90, 90, 90))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButtonBuscar)
+                        .addGap(110, 110, 110)
+                        .addComponent(jButton7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton6))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(slidertiempo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(132, 132, 132)
+                                        .addComponent(boxIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(64, 64, 64)
+                                        .addComponent(jButton1)
+                                        .addGap(31, 31, 31)
+                                        .addComponent(jButton5)
+                                        .addGap(27, 27, 27)
+                                        .addComponent(jButton2)))
+                                .addGap(25, 25, 25)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton4)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(25, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabelcaratula, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton3)
-                            .addComponent(jButton4))
-                        .addGap(70, 70, 70))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabelcaratula, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(boxIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(slidertiempo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton5)
-                .addGap(20, 20, 20))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton5)
+                            .addComponent(jButton1)
+                            .addComponent(jButton2))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton6)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButtonBuscar)
+                        .addComponent(jButton7)))
+                .addContainerGap())
         );
 
         jLabelcaratula.getAccessibleContext().setAccessibleName("jLabelcaratula");
@@ -185,21 +245,71 @@ public class interfaceReproductor extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        // Ruta del archivo MP3
+        // Obtener idioma seleccionado
+    String idiomaSeleccionado = boxIdioma.getSelectedItem().toString();
+
+    // Asignar canciones a la variable global (sin volver a declararla)
+    if (idiomaSeleccionado.equals("Español")) {
+        canciones = new String[] {
+            "/music/Golden Español Latino.mp3",
+            "/music/How It’s Done Español Latino.mp3",
+            "/music/Takedown Español Latino.mp3",
+            "/music/Your Idol Español.mp3"
+        };
+        caratulas = new String[] {
+            "/imagenes/Golden.jpg",
+            "/imagenes/itsdone.png",
+            "/imagenes/takedown.jpg",
+            "/imagenes/youridol.jpg"
+        };
+    } else if (idiomaSeleccionado.equals("Ingles")) {
+        canciones = new String[] {
+            "/music/Golden.mp3",
+            "/music/How It’s Done Español Latino.mp3",
+            "/music/Takedown.mp3",
+            "/music/YourIdol.mp3"
+        };
+        caratulas = new String[] {
+            "/imagenes/Golden.jpg",
+            "/imagenes/itsdone.png",
+            "/imagenes/takedown.jpg",
+            "/imagenes/youridol.jpg"
+        };
+    } else if (idiomaSeleccionado.equals("Uia")) {
+        canciones = new String[] {
+            "/music/Golden Uia.mp3",
+            "/music/sodaPop Uia.mp3",
+            "/music/Takedown Uia.mp3",
+            "/music/Your Idol Uia.mp3"
+        };
+        caratulas = new String[] {
+            "/imagenes/Golden uia.jpeg",
+            "/imagenes/sodaPop Uia.jpg",
+            "/imagenes/nocaut Uia.jpeg",
+            "/imagenes/Idol Uia.jpg"
+        };
+    }
+
+    // Validar antes de reproducir
+    if (canciones.length > 0 && indexActual >= 0 && indexActual < canciones.length){
         reproductor.reproducir(canciones[indexActual]);
         mostrarCaratula(caratulas[indexActual]);
+    } else {
+        JOptionPane.showMessageDialog(this, "No hay canciones cargadas o el índice es inválido.");
+    }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -233,8 +343,52 @@ public class interfaceReproductor extends javax.swing.JFrame {
             int porcentaje = slidertiempo.getValue();
             // llamar a tu método para adelantar/atrasar la canción
             moverAFrame(porcentaje);
-}
+        }
     }//GEN-LAST:event_slidertiempoStateChanged
+
+    private void boxIdiomaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxIdiomaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_boxIdiomaActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+            System.exit(0);
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButtonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBuscarActionPerformed
+        // TODO add your handling code here:
+        String termino = JOptionPane.showInputDialog(this, "¿Qué artista o canción quieres buscar?");
+        if (termino != null && !termino.isBlank()) {
+            java.util.List<ITunesAPI.Cancion> resultados = ITunesAPI.buscar(termino);
+        if (resultados.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+            return;
+        }
+
+        // Mostrar primera canción
+        ITunesAPI.Cancion c = resultados.get(0);
+        JOptionPane.showMessageDialog(this, "Reproduciendo: " + c.nombre + " - " + c.artista);
+        reproductor.cargarURL(c.previewUrl); // método que solo guarda la URL
+        mostrarCaratulaOnline(c.caratula);
+    }
+    }//GEN-LAST:event_jButtonBuscarActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+       if (reproductor.estaCargadaURL()) {
+        // Muestra la URL
+        JOptionPane.showMessageDialog(this, "URL cargada: " + reproductor.rutaActual);
+        System.out.println("URL cargada: " + reproductor.rutaActual);
+
+        // Reproducir con JavaFX MediaPlayer
+        reproductorOnline.detener(); // detener cualquier reproducción anterior
+        reproductorOnline.reproducirURL(reproductor.rutaActual);
+
+    } else if (canciones.length > 0 && indexActual >= 0 && indexActual < canciones.length) {
+        mostrarCaratula(caratulas[indexActual]);
+        reproductor.reproducir(canciones[indexActual]); 
+    } else {
+        JOptionPane.showMessageDialog(this, "No hay canciones cargadas.");
+    }
+    }//GEN-LAST:event_jButton7ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -266,11 +420,15 @@ public class interfaceReproductor extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> boxIdioma;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButtonBuscar;
     private javax.swing.JLabel jLabelcaratula;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSlider slidertiempo;
@@ -280,10 +438,12 @@ public class interfaceReproductor extends javax.swing.JFrame {
     private float hue = 0f; // tono de color inicial
 
     public FondoAnimado() {
-        Timer timer = new Timer(50, e -> {
-            hue += 0.005f;
-            if (hue > 1) hue = 0;
-            repaint();
+        Timer timer = new Timer(500, e -> {
+            if (reproductor.player != null) {
+                // slider del 0 al 100
+                int porcentaje = (int)(100.0 * reproductor.frameActual / totalFrames);
+                slidertiempo.setValue(porcentaje);
+            }
         });
         timer.start();
     }
@@ -314,22 +474,46 @@ public class interfaceReproductor extends javax.swing.JFrame {
         this.fondo = fondo;
     }
     
+    public class ReproductorOnline {
+    private MediaPlayer mediaPlayer;
 
+    public ReproductorOnline() {
+        // Inicializa JavaFX
+        new JFXPanel();
+    }
+
+    public void reproducirURL(String url) {
+        try {
+            Media media = new Media(url);
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pausar() {
+        if (mediaPlayer != null) mediaPlayer.pause();
+    }
+
+    public void detener() {
+        if (mediaPlayer != null) mediaPlayer.stop();
+    }
+    }
+    
 public static class ReproductorDemo {
-    private AdvancedPlayer player;
+    private Clip clip; // para URL
+    private AdvancedPlayer player; // para MP3 locales
     private Thread hilo;
     private String rutaActual;
-    private int frameActual = 0; // frame donde pausó
+    private int frameActual = 0;
 
+    // Reproducir MP3 local (tu original)
     public void reproducir(String ruta) {
         try {
-            // Si hay un player activo, cerrarlo
-            detener();
-
+            detener(); // detiene cualquier reproducción anterior
             rutaActual = ruta;
-            //FileInputStream fis = new FileInputStream(ruta);
             InputStream is = getClass().getResourceAsStream(rutaActual);
-
             player = new AdvancedPlayer(is);
 
             hilo = new Thread(() -> {
@@ -337,22 +521,68 @@ public static class ReproductorDemo {
                     player.setPlayBackListener(new PlaybackListener() {
                         @Override
                         public void playbackFinished(PlaybackEvent evt) {
-                            frameActual += evt.getFrame(); // guardar frame actual
+                            frameActual += evt.getFrame();
                         }
                     });
-                    player.play(frameActual, Integer.MAX_VALUE); // reanudar desde frameActual
+                    player.play(frameActual, Integer.MAX_VALUE);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
             hilo.start();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    // No iniciar la reproducción todavía
+    public void cargarURL(String url) {
+        rutaActual = url;
+        frameActual = 0; // reiniciar posición
+    }
+    public boolean estaCargadaURL() {
+        return rutaActual != null && !rutaActual.isBlank();
+    }
+    
+    // Reproducir desde URL (audio en streaming)
+    public void reproducirURL() {
+    if (!estaCargadaURL()) return;
+    try {
+        detener();
+        InputStream is = new BufferedInputStream(new URL(rutaActual).openStream());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int n;
+        while ((n = is.read(buffer)) != -1) {
+            baos.write(buffer, 0, n);
+        }
+        is.close();
 
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        player = new AdvancedPlayer(bais);
+
+        hilo = new Thread(() -> {
+            try { player.play(); } 
+            catch (Exception e) { e.printStackTrace(); }
+        });
+        hilo.start();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+    // Pausar (solo detiene clip o AdvancedPlayer)
+    public void pausa() {
+        if (clip != null && clip.isRunning()) clip.stop();
+        if (player != null) player.close();
+    }
+
+    // Detener
     public void detener() {
+        if (clip != null) {
+            clip.stop();
+            clip.close();
+            clip = null;
+        }
         if (player != null) {
             player.close();
             player = null;
@@ -364,43 +594,31 @@ public static class ReproductorDemo {
         frameActual = 0;
     }
 
-    public void pausa() {
+    public void reproducirDesdeFrame(int frame) {
         if (player != null) {
-            try {
-                player.close(); // guarda frameActual automáticamente
-                player = null;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            detener();
+            frameActual = frame;
+            reproducir(rutaActual);
         }
     }
     
-    public void reproducirDesdeFrame(int frame) {
+    public void cargar(String ruta) {
     try {
-        // Cierra el player actual
+        // Cierra cualquier reproducción anterior
         if (player != null) {
             player.close();
+            player = null;
         }
-        frameActual = frame; // actualiza el frame actual
-        //FileInputStream fis = new FileInputStream(rutaActual);
-        InputStream is = getClass().getResourceAsStream(rutaActual);
-
-        player = new AdvancedPlayer(is);
-        
-        hilo = new Thread(() -> {
-            try {
-                player.play(frameActual, Integer.MAX_VALUE);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        hilo.start();
+        rutaActual = ruta;
+        frameActual = 0; // reinicia el frame
+        // Solo cargamos InputStream, no se reproduce
+        // Lo dejamos listo para reproducir cuando se presione Play
     } catch (Exception e) {
         e.printStackTrace();
     }
 }
-    
 }
+
 private void mostrarCaratula(String rutaImagen) {
     //ImageIcon icon = new ImageIcon(rutaImagen);
     ImageIcon icon = new ImageIcon(getClass().getResource(rutaImagen));
@@ -414,8 +632,75 @@ private void mostrarCaratula(String rutaImagen) {
 private void moverAFrame(int porcentaje) {
     if (reproductor != null) {
         int nuevoFrame = (int)(totalFrames * (porcentaje / 100.0));
+        if (nuevoFrame > totalFrames) nuevoFrame = totalFrames;
         reproductor.reproducirDesdeFrame(nuevoFrame);
     }
 }
-        
+
+public class ITunesAPI {
+
+    public static class Cancion {
+        public String nombre;
+        public String artista;
+        public String previewUrl;
+        public String caratula;
+
+        public Cancion(String nombre, String artista, String previewUrl, String caratula) {
+            this.nombre = nombre;
+            this.artista = artista;
+            this.previewUrl = previewUrl;
+            this.caratula = caratula;
+        }
+    }
+
+        /**
+         *
+         * @param termino
+         * @return
+         */
+        public static List<Cancion> buscar(String termino) {
+        List<Cancion> canciones = new ArrayList<>();
+        try {
+            String url = "https://itunes.apple.com/search?term=" + 
+                         termino.replace(" ", "+") + 
+                         "&media=music&limit=5";
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+            JsonArray results = json.getAsJsonArray("results");
+
+            for (JsonElement element : results) {
+                JsonObject obj = element.getAsJsonObject();
+                String trackName = obj.has("trackName") ? obj.get("trackName").getAsString() : "Desconocido";
+                String artist = obj.has("artistName") ? obj.get("artistName").getAsString() : "Desconocido";
+                String preview = obj.has("previewUrl") ? obj.get("previewUrl").getAsString() : "";
+                String cover = obj.has("artworkUrl100") ? obj.get("artworkUrl100").getAsString() : "";
+                canciones.add(new Cancion(trackName, artist, preview, cover));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return canciones;
+    }
+    }
+
+public void mostrarCaratulaOnline(String imageUrl) {
+    try {
+        java.net.URL url = new java.net.URL(imageUrl);
+        javax.swing.ImageIcon icon = new javax.swing.ImageIcon(url);
+        java.awt.Image img = icon.getImage().getScaledInstance(
+            jLabelcaratula.getWidth(),
+            jLabelcaratula.getHeight(),
+            java.awt.Image.SCALE_SMOOTH
+        );
+        jLabelcaratula.setIcon(new javax.swing.ImageIcon(img));
+    } catch (Exception e) {
+        System.out.println("Error cargando la carátula: " + e.getMessage());
+    }
+}
 }
