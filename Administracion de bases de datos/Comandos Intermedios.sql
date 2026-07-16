@@ -117,7 +117,8 @@ SELECT NULLIF(10, 10);
 -- =========================
 -- CAST
 -- =========================
-
+\copy rutaOrigen (tipo de documento) TO 
+rutaDestino WITH (FORMAT csv, HEADER true);
 -- Convertir tipo
 SELECT CAST('123' AS INT);
 

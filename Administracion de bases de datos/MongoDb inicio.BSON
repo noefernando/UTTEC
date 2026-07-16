@@ -1,0 +1,225 @@
+=========================================
+COMANDOS BÁSICOS DE MONGODB (NIVEL INICIAL)
+=========================================
+
+1. Mostrar todas las bases de datos
+Comando:
+show dbs
+
+Ejemplo:
+Muestra las bases de datos disponibles, por ejemplo:
+admin
+local
+escuela
+tienda
+
+--------------------------------------------------
+
+2. Seleccionar o crear una base de datos
+Comando:
+use escuela
+
+Ejemplo:
+Cambia a la base de datos "escuela". Si no existe, se creará al insertar el primer documento.
+
+--------------------------------------------------
+
+3. Ver la base de datos actual
+Comando:
+db
+
+Ejemplo:
+Resultado:
+escuela
+
+--------------------------------------------------
+
+4. Mostrar las colecciones
+Comando:
+show collections
+
+Ejemplo:
+Muestra:
+estudiantes
+profesores
+
+--------------------------------------------------
+
+5. Insertar un documento
+Comando:
+db.estudiantes.insertOne({
+    nombre: "Ana",
+    edad: 20
+})
+
+Ejemplo:
+Agrega un estudiante llamado Ana.
+
+--------------------------------------------------
+
+6. Insertar varios documentos
+Comando:
+db.estudiantes.insertMany([
+    { nombre: "Luis", edad: 22 },
+    { nombre: "María", edad: 19 }
+])
+
+Ejemplo:
+Inserta dos estudiantes al mismo tiempo.
+
+--------------------------------------------------
+
+7. Mostrar todos los documentos
+Comando:
+db.estudiantes.find()
+
+Ejemplo:
+Lista todos los estudiantes.
+
+--------------------------------------------------
+
+8. Mostrar un solo documento
+Comando:
+db.estudiantes.findOne()
+
+Ejemplo:
+Devuelve el primer estudiante encontrado.
+
+--------------------------------------------------
+
+9. Buscar un documento
+Comando:
+db.estudiantes.find({ nombre: "Ana" })
+
+Ejemplo:
+Busca al estudiante llamado Ana.
+
+--------------------------------------------------
+
+10. Actualizar un documento
+Comando:
+db.estudiantes.updateOne(
+    { nombre: "Ana" },
+    { $set: { edad: 21 } }
+)
+
+Ejemplo:
+Actualiza la edad de Ana a 21 años.
+
+--------------------------------------------------
+
+11. Actualizar varios documentos
+Comando:
+db.estudiantes.updateMany(
+    {},
+    { $set: { activo: true } }
+)
+
+Ejemplo:
+Agrega el campo "activo" con valor true a todos los estudiantes.
+
+--------------------------------------------------
+
+12. Eliminar un documento
+Comando:
+db.estudiantes.deleteOne({ nombre: "Ana" })
+
+Ejemplo:
+Elimina el registro de Ana.
+
+--------------------------------------------------
+
+13. Eliminar varios documentos
+Comando:
+db.estudiantes.deleteMany({ edad: 19 })
+
+Ejemplo:
+Elimina todos los estudiantes con edad 19.
+
+--------------------------------------------------
+
+14. Eliminar todos los documentos
+Comando:
+db.estudiantes.deleteMany({})
+
+Ejemplo:
+Borra todos los documentos de la colección.
+
+--------------------------------------------------
+
+15. Eliminar una colección
+Comando:
+db.estudiantes.drop()
+
+Ejemplo:
+Elimina completamente la colección "estudiantes".
+
+--------------------------------------------------
+
+16. Eliminar una base de datos
+Comandos:
+use escuela
+db.dropDatabase()
+
+Ejemplo:
+Elimina la base de datos "escuela".
+
+--------------------------------------------------
+
+17. Ordenar resultados
+Comando:
+db.estudiantes.find().sort({ edad: 1 })
+
+Ejemplo:
+Ordena los estudiantes por edad de menor a mayor.
+
+--------------------------------------------------
+
+18. Limitar resultados
+Comando:
+db.estudiantes.find().limit(3)
+
+Ejemplo:
+Muestra únicamente los primeros 3 estudiantes.
+
+--------------------------------------------------
+
+19. Contar documentos
+Comando:
+db.estudiantes.countDocuments()
+
+Ejemplo:
+Devuelve el número total de estudiantes.
+
+--------------------------------------------------
+
+20. Buscar con condición
+Comando:
+db.estudiantes.find({ edad: { $gt: 20 } })
+
+Ejemplo:
+Muestra los estudiantes mayores de 20 años.
+
+=========================================
+RESUMEN
+=========================================
+
+show dbs               -> Mostrar bases de datos
+use nombreBD           -> Seleccionar o crear una base de datos
+db                     -> Mostrar la base de datos actual
+show collections       -> Mostrar colecciones
+insertOne()            -> Insertar un documento
+insertMany()           -> Insertar varios documentos
+find()                 -> Consultar documentos
+findOne()              -> Consultar un documento
+updateOne()            -> Actualizar un documento
+updateMany()           -> Actualizar varios documentos
+deleteOne()            -> Eliminar un documento
+deleteMany()           -> Eliminar varios documentos
+drop()                 -> Eliminar una colección
+dropDatabase()         -> Eliminar una base de datos
+sort()                 -> Ordenar resultados
+limit()                -> Limitar resultados
+countDocuments()       -> Contar documentos
+
+FIN DEL DOCUMENTO
